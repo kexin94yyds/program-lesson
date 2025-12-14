@@ -12,7 +12,45 @@
 <body>
   <div id="root"></div>
   <script type="text/babel">
-const { useState } = React;
+const { useState, useEffect } = React;
+
+// JSONBin.io 配置 - 固定的 Bin ID，所有数据汇总到同一个地方
+const JSONBIN_CONFIG = {
+  MASTER_KEY: '$2a$10$qRrYfYJdq8z7r0HSTaR7zewZOvUGxBLe3Khsp9swhKMAaCPJf9XZe',
+  BIN_ID: '693f3f3743b1c97be9ee63d6'
+};
+
+// 上报参与者数据到 JSONBin
+const reportParticipant = async (participant) => {
+  try {
+    // 先获取现有数据
+    let participants = [];
+    const getRes = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_CONFIG.MASTER_KEY }
+    });
+    if (getRes.ok) {
+      const data = await getRes.json();
+      participants = data.record.participants || [];
+    }
+    
+    // 添加新参与者
+    participants.push(participant);
+    
+    // 更新 bin
+    await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.BIN_ID}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_CONFIG.MASTER_KEY
+      },
+      body: JSON.stringify({ participants })
+    });
+    
+    console.log('参与者数据已上报:', participant.name);
+  } catch (error) {
+    console.error('上报失败:', error);
+  }
+};
 
 // SVG Icons
 const Trophy = ({ size = 24, className = "" }) => (
@@ -403,6 +441,22 @@ function AIQuizApp() {
       setIsAnswered(false);
     } else {
       setStep('result');
+      // 上报参与者数据
+      const finalScore = score;
+      const percentage = (finalScore / questions.length) * 100;
+      let title = "AI 编程探索者";
+      if (percentage === 100) title = "AI 首席架构师";
+      else if (percentage >= 85) title = "AI 高级指挥官";
+      else if (percentage >= 70) title = "AI 核心开发者";
+      else if (percentage >= 50) title = "AI 潜力实习生";
+      
+      reportParticipant({
+        name: userName,
+        score: finalScore,
+        total: questions.length,
+        title: title,
+        time: new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })
+      });
     }
   };
 

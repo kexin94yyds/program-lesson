@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>打卡统计 - 管理后台</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState, useEffect } = React;
+
+// JSONBin.io 配置 - 与主页面保持一致
+const JSONBIN_CONFIG = {
+  MASTER_KEY: '$2a$10$qRrYfYJdq8z7r0HSTaR7zewZOvUGxBLe3Khsp9swhKMAaCPJf9XZe',
+  BIN_ID: '693f3f3743b1c97be9ee63d6'
+};
+
+function StatsApp() {
+  const [participants, setParticipants] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [binId, setBinId] = useState('');
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
+    setBinId(JSONBIN_CONFIG.BIN_ID);
+    
+    try {
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.BIN_ID}/latest`, {
+        headers: { 'X-Master-Key': JSONBIN_CONFIG.MASTER_KEY }
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        setParticipants(data.record.participants || []);
+      } else {
+        setError('获取数据失败');
+      }
+    } catch (e) {
+      setError('网络错误：' + e.message);
+    }
+    
+    setLoading(false);
+  };
+
+  const exportCSV = () => {
+    const headers = ['姓名', '分数', '总题数', '称号', '完成时间'];
+    const rows = participants.map(p => [p.name, p.score, p.total, p.title, p.time]);
+    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+    
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `打卡统计_${new Date().toLocaleDateString('zh-CN')}.csv`;
+    link.click();
+  };
+
+  const getStats = () => {
+    if (participants.length === 0) return null;
+    const avgScore = (participants.reduce((sum, p) => sum + p.score, 0) / participants.length).toFixed(1);
+    const perfectCount = participants.filter(p => p.score === p.total).length;
+    const titleCounts = {};
+    participants.forEach(p => {
+      titleCounts[p.title] = (titleCounts[p.title] || 0) + 1;
+    });
+    return { avgScore, perfectCount, titleCounts };
+  };
+
+  const stats = getStats();
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-white p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              打卡统计后台
+            </h1>
+            <p className="text-slate-400 text-sm mt-1">文胜军AI编程训练营（第一课）</p>
+          </div>
+          <div className="flex gap-3">
+            <button 
+              onClick={loadData}
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors"
+            >
+              🔄 刷新
+            </button>
+            <button 
+              onClick={exportCSV}
+              disabled={participants.length === 0}
+              className="px-4 py-2 bg-green-600 hover:bg-green-500 disabled:bg-slate-700 disabled:text-slate-500 rounded-lg text-sm transition-colors"
+            >
+              📥 导出 CSV
+            </button>
+          </div>
+        </div>
+
+        {loading && (
+          <div className="text-center py-20 text-slate-400">
+            <div className="animate-spin text-4xl mb-4">⏳</div>
+            加载中...
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-500/20 border border-red-500 rounded-xl p-6 text-center">
+            <p className="text-red-300">{error}</p>
+            <button 
+              onClick={loadData}
+              className="mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg text-sm"
+            >
+              重试
+            </button>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <>
+            {/* 统计卡片 */}
+            {stats && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                  <div className="text-3xl font-bold text-purple-400">{participants.length}</div>
+                  <div className="text-slate-400 text-sm">总参与人数</div>
+                </div>
+                <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                  <div className="text-3xl font-bold text-blue-400">{stats.avgScore}</div>
+                  <div className="text-slate-400 text-sm">平均分数</div>
+                </div>
+                <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                  <div className="text-3xl font-bold text-yellow-400">{stats.perfectCount}</div>
+                  <div className="text-slate-400 text-sm">满分人数</div>
+                </div>
+                <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                  <div className="text-3xl font-bold text-green-400">
+                    {participants.length > 0 ? ((stats.perfectCount / participants.length) * 100).toFixed(0) : 0}%
+                  </div>
+                  <div className="text-slate-400 text-sm">满分率</div>
+                </div>
+              </div>
+            )}
+
+            {/* 称号分布 */}
+            {stats && (
+              <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 mb-8">
+                <h2 className="text-lg font-bold mb-4">称号分布</h2>
+                <div className="flex flex-wrap gap-3">
+                  {Object.entries(stats.titleCounts).map(([title, count]) => (
+                    <div key={title} className="bg-slate-700 px-4 py-2 rounded-full text-sm">
+                      <span className="text-purple-300">{title}</span>
+                      <span className="text-white ml-2 font-bold">{count}人</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 参与者列表 */}
+            <div className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+              <div className="p-4 border-b border-slate-700">
+                <h2 className="text-lg font-bold">参与者名单 ({participants.length}人)</h2>
+              </div>
+              
+              {participants.length === 0 ? (
+                <div className="p-8 text-center text-slate-400">
+                  暂无数据，等待用户完成挑战...
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-slate-700/50">
+                      <tr>
+                        <th className="text-left px-4 py-3 text-sm text-slate-300">#</th>
+                        <th className="text-left px-4 py-3 text-sm text-slate-300">姓名</th>
+                        <th className="text-left px-4 py-3 text-sm text-slate-300">分数</th>
+                        <th className="text-left px-4 py-3 text-sm text-slate-300">称号</th>
+                        <th className="text-left px-4 py-3 text-sm text-slate-300">完成时间</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {participants.map((p, i) => (
+                        <tr key={i} className="border-t border-slate-700 hover:bg-slate-700/30">
+                          <td className="px-4 py-3 text-slate-400">{i + 1}</td>
+                          <td className="px-4 py-3 font-medium">{p.name}</td>
+                          <td className="px-4 py-3">
+                            <span className={p.score === p.total ? 'text-yellow-400 font-bold' : ''}>
+                              {p.score}/{p.total}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-purple-300">{p.title}</td>
+                          <td className="px-4 py-3 text-slate-400 text-sm">{p.time}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {binId && (
+              <div className="mt-4 text-center text-slate-500 text-xs">
+                Bin ID: {binId}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<StatsApp />);
+  </script>
+</body>
+</html>
