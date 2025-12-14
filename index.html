@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 编程第一课 - 知识闯关挑战</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+const { useState } = React;
+
+// SVG Icons
+const Trophy = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+);
+const ArrowRight = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+);
+const Brain = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></svg>
+);
+const CheckCircle = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+);
+const Cpu = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>
+);
+const User = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+);
+const Sparkles = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
+);
+const Share2 = ({ size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+);
+
+const questions = [
+  {
+    id: 1,
+    question: "根据廖老师的讲解，AI（人工智能）的核心目的是什么？",
+    options: [
+      "取代人类所有的工作",
+      "让计算机拥有类似人类的“思考”和“行动”能力",
+      "仅仅用来做语音助手报天气",
+      "为了让显卡卖得更贵"
+    ],
+    correct: 1
+  },
+  {
+    id: 2,
+    question: "AI编程对于普通人最大的价值是什么？",
+    options: [
+      "必须学会 Java 和 Python 才能用",
+      "把原本需要专业技能的编程工作，变成了人人可参与的“创意落地”",
+      "只能用来写简单的贪吃蛇游戏",
+      "让普通人彻底放弃思考"
+    ],
+    correct: 1
+  },
+  {
+    id: 3,
+    question: "Gemini 3 之所以能编程，依托的三大技术支柱不包括哪一项？",
+    options: [
+      "Deep Think 深度推理",
+      "Antigravity 开发平台",
+      "Vibe Coding 意图驱动",
+      "Quantum Leap 量子跳跃"
+    ],
+    correct: 3
+  },
+  {
+    id: 4,
+    question: "关于 Gemini 3 的“Deep Think”深度推理模式，描述正确的是？",
+    options: [
+      "它会立刻生成代码，不管对错",
+      "它是“见招拆招”的模式，只能写简单代码",
+      "它包含“拆解-探索-验证-整合”四个步骤，像程序员一样慢思考",
+      "它主要用于生成画作"
+    ],
+    correct: 2
+  },
+  {
+    id: 5,
+    question: "如果说 Deep Think 是大脑，那么“Antigravity 开发平台”相当于 AI 的什么？",
+    options: [
+      "“眼睛”，负责看懂图片",
+      "“嘴巴”，负责解释代码",
+      "“身体”和“手”，负责掌控环境、调试运行和修改文件",
+      "“耳朵”，负责听取语音指令"
+    ],
+    correct: 2
+  },
+  {
+    id: 6,
+    question: "“Vibe Coding（意图驱动）”技术的最大特点是什么？",
+    options: [
+      "让用户不用懂专业术语，用大白话（自然语言）就能写代码",
+      "要求用户必须使用英语进行交互",
+      "只能生成前端页面，无法处理后端逻辑",
+      "需要用户手绘流程图给 AI 识别"
+    ],
+    correct: 0
+  },
+  {
+    id: 7,
+    question: "根据可鑫老师的观点，AI时代开发者的角色将发生什么根本性转变？",
+    options: [
+      "从“工匠”转变为“指挥家”或“架构师”",
+      "从“写代码”转变为“修电脑”",
+      "变得完全不需要任何技术知识",
+      "只需要学会怎么抄袭别人的代码"
+    ],
+    correct: 0
+  },
+  {
+    id: 8,
+    question: "AI 编程的核心逻辑是将“写代码”这个复杂环节交给了 AI，那么普通人主要负责什么？",
+    options: [
+      "“修电脑”和“装系统”",
+      "“提需求”和“做判断”",
+      "“背语法”和“写函数”",
+      "“看热闹”和“喊加油”"
+    ],
+    correct: 1
+  },
+  {
+    id: 9,
+    question: "既然AI能写代码，为什么我们还需要具备“高级工程师”的代码理解能力？",
+    options: [
+      "为了在朋友面前显摆",
+      "因为AI生成的代码全是错的",
+      "为了避免“涂了口红的依赖”，具备代码审查、安全把控和架构设计能力",
+      "因为只有人类写代码才有灵魂"
+    ],
+    correct: 2
+  },
+  {
+    id: 10,
+    question: "如果 AI 写了你不理解的代码，而你直接使用，这种危险的依赖关系被可鑫老师比喻为？",
+    options: [
+      "涂了口红的依赖 (Lipstick on a dependency)",
+      "带刺的玫瑰",
+      "甜蜜的陷阱",
+      "黑盒盲盒"
+    ],
+    correct: 0
+  },
+  {
+    id: 11,
+    question: "在AI编程时代，最该掌握的核心技能是什么？",
+    options: [
+      "背诵所有的编程语法",
+      "打字速度达到每分钟200字",
+      "管理 AI 智能体、审查代码和关联工作任务的能力",
+      "组装电脑硬件的能力"
+    ],
+    correct: 2
+  },
+  {
+    id: 12,
+    question: "在多智能体（Multi-agents）协作的时代，软件开发的“新瓶颈”变成了什么？",
+    options: [
+      "代码生成的速度",
+      "人工代码审查（Code Review）和质量把控",
+      "打字的速度",
+      "互联网的带宽"
+    ],
+    correct: 1
+  },
+  {
+    id: 13,
+    question: "未来的编码工作流将从传统的“进入循环”（In-the-loop）模式转向什么模式？",
+    options: [
+      "“出循环”（Out-of-loop）模式，通过自动化层管理任务",
+      "“死循环”模式，永远无法结束",
+      "“单线程”模式，一次只做一件事",
+      "“无代码”模式，彻底抛弃代码"
+    ],
+    correct: 0
+  },
+  {
+    id: 14,
+    question: "独立开发者（Solo Developer）在 AI 时代的角色更像是一家软件公司的什么职位？",
+    options: [
+      "实习生",
+      "客服",
+      "CEO（首席执行官）",
+      "保洁员"
+    ],
+    correct: 2
+  },
+  {
+    id: 15,
+    question: "AI 能够让“智慧”变得廉价，这意味着什么？",
+    options: [
+      "人类会变得越来越笨",
+      "普通人也能获得以前只有富人才能享受的专业服务（如顶级建议）",
+      "学校将不再存在",
+      "AI 会免费赠送电脑"
+    ],
+    correct: 1
+  },
+  {
+    id: 16,
+    question: "本次 AI 编程训练营承诺带大家完成几个实战项目？",
+    options: [
+      "1 个",
+      "2 个",
+      "4 个（如节气站、SWOT工具等）",
+      "10 个"
+    ],
+    correct: 2
+  },
+  {
+    id: 17,
+    question: "对于学习 AI 编程的策略，可鑫老师建议从“消费者”模式转变为“构建者”模式，这意味着？",
+    options: [
+      "多买几台电脑",
+      "只看不练，疯狂收藏教程",
+      "优先考虑交付产品，从头到尾完成一个可运行的项目",
+      "去工地搬砖"
+    ],
+    correct: 2
+  },
+  {
+    id: 18,
+    question: "关于AI编程的未来，以下哪种说法是正确的？",
+    options: [
+      "程序员这个职业会彻底消失",
+      "普通人通过AI多智能体协作，有机会创建数百万美元的公司",
+      "只有大公司才能用得起AI编程",
+      "AI只能做辅助，无法独立完成项目"
+    ],
+    correct: 1
+  },
+  {
+    id: 19,
+    question: "廖老师提到，现在的AI就像一个什么角色？",
+    options: [
+      "只会重复指令的机器人",
+      "超级全能助力，通晓上百个学科领域",
+      "专门用来打游戏的工具",
+      "只能帮忙订外卖的助手"
+    ],
+    correct: 1
+  },
+  {
+    id: 20,
+    question: "根据课程内容，Antigravity 平台能做到以下哪些事情？",
+    options: [
+      "只能生成代码，无法运行",
+      "自主访问代码库、执行终端命令、启动浏览器调试页面",
+      "只能在Windows系统上运行",
+      "需要用户手动安装所有依赖"
+    ],
+    correct: 1
+  },
+  {
+    id: 21,
+    question: "为什么说这波AI浪潮里，最大的受益者是"非技术人群"？",
+    options: [
+      "因为AI只给非技术人群打折",
+      "以前做网站要学半年代码，现在用AI几天就能搞定",
+      "因为技术人员都失业了",
+      "因为AI只听非技术人群的话"
+    ],
+    correct: 1
+  },
+  {
+    id: 22,
+    question: "根据可鑫老师的观点，代码审查时需要检查的"惯用语言使用"是指什么？",
+    options: [
+      "代码里必须写中文注释",
+      "确保代码符合该语言的标准写法，如Kotlin代码不要写成Java风格",
+      "代码必须用英语变量名",
+      "代码行数必须超过1000行"
+    ],
+    correct: 1
+  },
+  {
+    id: 23,
+    question: "AI编程工作流中，"人工在环"（HITL）验证系统的作用是什么？",
+    options: [
+      "让人类完全替代AI写代码",
+      "对AI产出进行检查、测试，必要时予以纠正",
+      "让AI学会人类的情绪",
+      "用来给AI发工资"
+    ],
+    correct: 1
+  },
+  {
+    id: 24,
+    question: "Deep Think 模式在博士级科学问题测试中的准确率达到了多少？",
+    options: [
+      "50%",
+      "75%",
+      "93.8%",
+      "100%"
+    ],
+    correct: 2
+  },
+  {
+    id: 25,
+    question: "根据课程，代理工作流（Agentic Workflow）的最终结果通常是什么？",
+    options: [
+      "一份PPT报告",
+      "自动生成的拉取请求（Pull Request），等待人类审查",
+      "一封感谢邮件",
+      "一个视频教程"
+    ],
+    correct: 1
+  },
+  {
+    id: 26,
+    question: "可鑫老师提到，如果开发者仅凭"我会让AI生成代码"作为技能，会导致什么问题？",
+    options: [
+      "会获得更高的薪资",
+      "将变得完全可替代，因为几乎每个人都有这种能力",
+      "会被AI公司特聘",
+      "会成为技术总监"
+    ],
+    correct: 1
+  },
+  {
+    id: 27,
+    question: "AI编程对初创公司特别有利的原因是什么？",
+    options: [
+      "初创公司有更多资金",
+      "初创公司没有大公司那样的官僚作风，行动更灵活",
+      "初创公司员工更年轻",
+      "初创公司不需要写代码"
+    ],
+    correct: 1
+  },
+  {
+    id: 28,
+    question: "廖老师说"不想让'不懂代码'成为大家拥抱AI的门槛"，训练营是如何实现这一点的？",
+    options: [
+      "强制学员背诵所有编程语法",
+      "专门针对小白设计，只要会打字就行，跟着SOP手册操作",
+      "让学员去科班进修三年",
+      "只招收计算机专业学员"
+    ],
+    correct: 1
+  },
+  {
+    id: 29,
+    question: "根据课程，掌握AI技能对个人未来的影响是什么？",
+    options: [
+      "没什么影响，AI只是一时热潮",
+      "掌握AI技能的人将比不掌握的人强大得多",
+      "只有程序员需要学AI",
+      "学AI会让人变懒"
+    ],
+    correct: 1
+  },
+  {
+    id: 30,
+    question: "可鑫老师建议"停止服务自我（Ego）"是什么意思？",
+    options: [
+      "不要太自恋",
+      "停止通过狂热消费教程来追求虚假进步，专注于实际交付",
+      "不要用AI",
+      "删除所有社交媒体"
+    ],
+    correct: 1
+  }
+];
+
+function AIQuizApp() {
+  const [step, setStep] = useState('welcome'); // welcome, quiz, result
+  const [userName, setUserName] = useState('');
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [score, setScore] = useState(0);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [isAnswered, setIsAnswered] = useState(false);
+
+  const handleStart = () => {
+    if (userName.trim()) {
+      setStep('quiz');
+    }
+  };
+
+  const handleAnswer = (index) => {
+    if (isAnswered) return;
+    setSelectedOption(index);
+    setIsAnswered(true);
+    if (index === questions[currentQuestion].correct) {
+      setScore(score + 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+      setSelectedOption(null);
+      setIsAnswered(false);
+    } else {
+      setStep('result');
+    }
+  };
+
+  const getResultTitle = () => {
+    const percentage = (score / questions.length) * 100;
+    if (percentage === 100) return "AI 首席架构师";
+    if (percentage >= 85) return "AI 高级指挥官";
+    if (percentage >= 70) return "AI 核心开发者";
+    if (percentage >= 50) return "AI 潜力实习生";
+    return "AI 编程探索者";
+  };
+
+  const getResultComment = () => {
+    const percentage = (score / questions.length) * 100;
+    if (percentage === 100) return "太神了！全知全能，你就是驾驭 Gemini 3 的天选之子！";
+    if (percentage >= 85) return "非常优秀！深刻理解了“指挥家”的精髓，未来可期！";
+    if (percentage >= 70) return "基础扎实！已经掌握了核心逻辑，实战中继续磨练吧！";
+    if (percentage >= 50) return "表现不错！但还有进步空间，建议复习一下“涂了口红的依赖”哦。";
+    return "别灰心！点击再测一次，重温第一课的知识点，你一定行！";
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-900 text-white font-sans selection:bg-purple-500 selection:text-white flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        
+        {/* Welcome Screen */}
+        {step === 'welcome' && (
+          <div className="bg-slate-800 rounded-2xl p-8 shadow-2xl border border-slate-700 text-center animate-fade-in">
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30">
+                <Brain className="w-10 h-10 text-white" />
+              </div>
+            </div>
+            <h1 className="text-2xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              AI 编程第一课
+            </h1>
+            <h2 className="text-xl font-bold text-white mb-6">知识闯关挑战</h2>
+            <p className="text-slate-400 mb-8 text-sm leading-relaxed">
+              题库已升级至 {questions.length} 道！<br/>
+              测测你对 AI 编程的理解有多深？<br/>
+              通关挑战，赢取你的专属称号！
+            </p>
+            
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="请输入你的名字 / 昵称"
+                className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-600 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all text-center text-white placeholder-slate-500"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleStart()}
+              />
+              <button
+                onClick={handleStart}
+                disabled={!userName.trim()}
+                className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all transform active:scale-95 ${
+                  userName.trim() 
+                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 shadow-lg shadow-purple-900/50' 
+                    : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                }`}
+              >
+                开始挑战 <ArrowRight size={20} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Quiz Screen */}
+        {step === 'quiz' && (
+          <div className="bg-slate-800 rounded-2xl p-6 shadow-2xl border border-slate-700 animate-slide-up">
+            {/* Header / Progress */}
+            <div className="flex justify-between items-center mb-6 text-sm text-slate-400">
+              <span className="flex items-center gap-2">
+                <User size={16} /> {userName}
+              </span>
+              <span className="font-mono bg-slate-900 px-2 py-1 rounded-md border border-slate-700">
+                {currentQuestion + 1} / {questions.length}
+              </span>
+            </div>
+            
+            <div className="w-full bg-slate-700 h-2 rounded-full mb-8 overflow-hidden">
+              <div 
+                className="bg-gradient-to-r from-purple-500 to-blue-500 h-full transition-all duration-500 ease-out"
+                style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+              ></div>
+            </div>
+
+            {/* Question */}
+            <h3 className="text-lg font-bold mb-6 leading-relaxed">
+              {questions[currentQuestion].question}
+            </h3>
+
+            {/* Options */}
+            <div className="space-y-3 mb-8">
+              {questions[currentQuestion].options.map((option, index) => {
+                let btnClass = "w-full text-left p-4 rounded-xl border transition-all duration-200 relative ";
+                
+                if (!isAnswered) {
+                  btnClass += "bg-slate-700/50 border-slate-600 hover:bg-slate-700 hover:border-purple-500 hover:text-purple-200";
+                } else {
+                  if (index === questions[currentQuestion].correct) {
+                    btnClass += "bg-green-500/20 border-green-500 text-green-200";
+                  } else if (index === selectedOption) {
+                    btnClass += "bg-red-500/20 border-red-500 text-red-200";
+                  } else {
+                    btnClass += "bg-slate-700/30 border-slate-700 text-slate-500 opacity-50";
+                  }
+                }
+
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleAnswer(index)}
+                    disabled={isAnswered}
+                    className={btnClass}
+                  >
+                    <div className="pr-8">{option}</div>
+                    {isAnswered && index === questions[currentQuestion].correct && (
+                      <CheckCircle className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500 w-5 h-5" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Next Button */}
+            <div className="h-12">
+              {isAnswered && (
+                <button
+                  onClick={handleNext}
+                  className="w-full py-3 bg-white text-slate-900 rounded-xl font-bold hover:bg-purple-100 transition-colors flex items-center justify-center gap-2 animate-bounce-in"
+                >
+                  {currentQuestion < questions.length - 1 ? '下一题' : '查看结果'} <ArrowRight size={20} />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Result Screen (Screenshot Target) */}
+        {step === 'result' && (
+          <div className="relative animate-scale-in">
+            {/* The Badge Card */}
+            <div className="bg-gradient-to-b from-slate-800 to-slate-900 rounded-2xl p-1 shadow-2xl border border-purple-500/30 overflow-hidden">
+              <div className="bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] rounded-xl p-8 flex flex-col items-center text-center relative">
+                
+                {/* Decorative Elements */}
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500"></div>
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl"></div>
+                <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl"></div>
+
+                <div className="mb-2 text-purple-400 font-bold tracking-widest text-xs uppercase">
+                  AI Programming Bootcamp
+                </div>
+                
+                <h2 className="text-2xl font-bold text-white mb-6">能力评估报告</h2>
+
+                <div className="relative mb-6">
+                   <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40 mx-auto">
+                    <Trophy className="w-12 h-12 text-white" />
+                  </div>
+                  <div className="absolute -bottom-2 bg-slate-900 text-yellow-400 text-xs font-bold px-3 py-1 rounded-full border border-yellow-500/50">
+                    {score * 100} / {questions.length * 100} 分
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <div className="text-slate-400 text-sm mb-1">学员姓名</div>
+                  <div className="text-2xl font-bold text-white">{userName}</div>
+                </div>
+
+                <div className="w-full bg-slate-800/50 rounded-xl p-4 border border-slate-700 mb-6">
+                  <div className="text-slate-400 text-xs mb-1">获得称号</div>
+                  <div className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                    {getResultTitle()}
+                  </div>
+                </div>
+
+                <p className="text-slate-300 text-sm italic leading-relaxed mb-8 opacity-90">
+                  “{getResultComment()}”
+                </p>
+
+                <div className="flex items-center justify-center gap-4 text-xs text-slate-500 border-t border-slate-800 pt-4 w-full">
+                  <div className="flex items-center gap-1">
+                    <Cpu size={14} /> Gemini 3 驱动
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Sparkles size={14} /> AI 编程训练营
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons (Not part of screenshot ideally, but helpful) */}
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setStep('welcome')}
+                className="flex-1 py-3 bg-slate-700 text-slate-300 rounded-xl font-bold hover:bg-slate-600 transition-colors text-sm"
+              >
+                再测一次
+              </button>
+              <div className="flex-1 py-3 bg-purple-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 text-sm shadow-lg shadow-purple-900/50 cursor-default">
+                <Share2 size={16} /> 截图分享到群
+              </div>
+            </div>
+          </div>
+        )}
+
+      </div>
+
+      <style>{`
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slide-up {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scale-in {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes bounce-in {
+          0% { transform: scale(0.9); opacity: 0; }
+          60% { transform: scale(1.05); opacity: 1; }
+          100% { transform: scale(1); }
+        }
+        .animate-fade-in { animation: fade-in 0.5s ease-out; }
+        .animate-slide-up { animation: slide-up 0.5s ease-out; }
+        .animate-scale-in { animation: scale-in 0.5s ease-out; }
+        .animate-bounce-in { animation: bounce-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+      `}</style>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<AIQuizApp />);
+  </script>
+</body>
+</html>
