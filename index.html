@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI 编程第二课 - 知识闯关挑战</title>
+  <title>AI 编程第一课 - 知识闯关挑战</title>
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -421,7 +421,7 @@ function AIQuizApp() {
     if (percentage >= 85) return "非常优秀！深刻理解了“指挥家”的精髓，未来可期！";
     if (percentage >= 70) return "基础扎实！已经掌握了核心逻辑，实战中继续磨练吧！";
     if (percentage >= 50) return "表现不错！但还有进步空间，建议复习一下“涂了口红的依赖”哦。";
-    return "别灰心！点击再测一次，重温第二课的知识点，你一定行！";
+    return "别灰心！点击再测一次，重温第一课的知识点，你一定行！";
   };
 
   return (
@@ -436,10 +436,11 @@ function AIQuizApp() {
                 <Brain className="w-10 h-10 text-white" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              AI 编程第二课
+            <h1 className="text-2xl font-bold mb-1 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              AI 编程
             </h1>
-            <h2 className="text-xl font-bold text-white mb-6">知识闯关挑战</h2>
+            <h2 className="text-xl font-bold text-white mb-2">第一课</h2>
+            <h3 className="text-lg font-bold text-slate-300 mb-6">知识闯关挑战</h3>
             <p className="text-slate-400 mb-8 text-sm leading-relaxed">
               题库已升级至 {questions.length} 道！<br/>
               测测你对 AI 编程的理解有多深？<br/>
